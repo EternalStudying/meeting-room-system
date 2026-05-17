@@ -546,3 +546,39 @@
 | Playwright Local smoke | `run-playwright.ps1 smoke.cjs` | Edge 自动化可运行 | `{"ok":true,"browser":"msedge","text":"playwright-local ok"}` | passed |
 | 主链路真实点击 | `run-playwright.ps1 codex-work/real-browser-e2e-test.cjs` | P0/P1 主链路通过 | 11 通过、0 失败；创建并审批 `浏览器实测预约-20260517053246`，发布并接收 `浏览器实测通知-20260517053246` | passed |
 | 补充回归真实点击 | `run-playwright.ps1 codex-work/real-browser-extra-regression.cjs` | 权限、404、筛选、校验和统计切换通过 | 9 通过、0 失败 | passed |
+
+### 2026-05-17 前端低风险无用文件整理
+- **状态：** completed
+- 执行的操作：
+  - 扫描前端路由、组件引用、工具函数引用和依赖引用。
+  - 删除无路由入口的旧通知发布页面及其旧页面测试。
+  - 删除未引用的模板遗留组件：`Screenfull`、`SearchMenu`、`ThemeSwitch`、旧 dashboard 角色首页。
+  - 删除仅被这些孤儿组件引用的 SVG 图标，以及未被当前业务引用的 composable/helper 文件。
+  - 移除 `screenfull` 依赖；首次普通 `pnpm remove` 因本机 `node_modules` 虚拟目录长度配置失败，已改用 `--lockfile-only` 更新清单和锁文件。
+- 创建/修改/删除的文件：
+  - `frontend/package.json`
+  - `frontend/pnpm-lock.yaml`
+  - `frontend/src/pages/admin/notifications/index.vue`
+  - `frontend/tests/pages/AdminNotifications.test.ts`
+  - `frontend/src/common/components/Screenfull/index.vue`
+  - `frontend/src/common/components/SearchMenu/*`
+  - `frontend/src/common/components/ThemeSwitch/index.vue`
+  - `frontend/src/common/composables/useFetchSelect.ts`
+  - `frontend/src/common/composables/useFullscreenLoading.ts`
+  - `frontend/src/common/composables/usePagination.ts`
+  - `frontend/src/common/composables/usePany.ts`
+  - `frontend/src/common/composables/useWatermark.ts`
+  - `frontend/src/common/utils/permission.ts`
+  - `frontend/src/pages/dashboard/components/Admin.vue`
+  - `frontend/src/pages/dashboard/components/Editor.vue`
+  - `frontend/src/pages/dashboard/images/dashboard.svg`
+  - `frontend/src/common/assets/icons/*.svg`
+
+## 测试结果：2026-05-17 前端低风险无用文件整理
+| 测试 | 输入 | 预期结果 | 实际结果 | 状态 |
+|------|------|---------|---------|------|
+| 引用检查 | `git grep` 检查已删组件、图标和 `screenfull` | 源码和测试中无断开引用 | 只剩 `showThemeSwitch` 旧配置过滤测试；无图标和 `screenfull` 引用 | passed |
+| 前端测试初跑 | `pnpm test -- --run` 与构建并发 | 测试通过 | `AdminStats.test.ts` 首个用例 20s 超时 | warning |
+| 前端测试复跑 | `pnpm test -- --run tests/pages/AdminStats.test.ts` | 测试通过 | 26 个文件、130 个测试通过 | passed |
+| 前端构建 | `pnpm build` | TypeScript 和 Vite 构建通过 | 通过；仍有既有 `%VITE_APP_TITLE%` 未定义警告 | passed |
+| 后端模块测试 | `mvn -pl meeting-room-server test` | 后端不受前端清理影响 | 194 个测试通过 | passed |

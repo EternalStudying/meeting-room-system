@@ -143,7 +143,15 @@
 - 发布成功后弹窗组件提示“已发布给 N 个接收人”、清空表单、关闭弹窗，并向父组件发出 `published`；Notify 组件收到后刷新 `getNotificationSummaryApi` 和当前分类 `getNotificationPageApi`。
 - 发布失败时弹窗保持打开，表单内容不清空，提示“通知发布失败，请稍后重试”。
 - admin 判断使用 `useUserStore().roles`，只有角色小写后等于 `admin` 时显示铃铛弹层“发布通知”按钮。
-- `frontend/src/router/index.ts` 已移除动态路由 `AdminNotifications`，管理端侧边栏不再展示“通知发布”独立菜单入口；旧页面文件暂保留但不再通过动态路由进入。
+- `frontend/src/router/index.ts` 已移除动态路由 `AdminNotifications`，管理端侧边栏不再展示“通知发布”独立菜单入口。
+- 2026-05-17 整理时确认旧页面只剩测试和文档引用，已删除 `frontend/src/pages/admin/notifications/index.vue` 与 `frontend/tests/pages/AdminNotifications.test.ts`，通知发布能力只保留顶部铃铛弹窗。
+
+## 2026-05-17 前端低风险无用文件整理
+- 旧 `AdminNotifications` 独立页面已无路由入口，发布逻辑已经迁移到 `AdminNotificationPublishDialog`，可删除旧页面和旧页面测试。
+- `SearchMenu`、`Screenfull`、`ThemeSwitch` 未被导航栏、布局或页面引用；删除后只剩 `showThemeSwitch` 配置迁移测试中的旧字段过滤断言。
+- `useFetchSelect`、`useFullscreenLoading`、`usePagination`、`usePany`、`useWatermark`、`common/utils/permission.ts` 只在自身定义中出现，不参与当前业务。
+- 旧 dashboard 角色首页 `Admin.vue`、`Editor.vue` 不再被概览路由使用；当前概览页直接渲染 `frontend/src/pages/dashboard/index.vue`。
+- `screenfull` 仅由已删除的 `Screenfull` 组件引用，已从 `package.json` 和 `pnpm-lock.yaml` 移除。
 
 ## 2026-05-15 预约创建弹窗左右面板等高
 - 问题位于 `frontend/src/components/ReservationCreateDialog.vue` 的 `.reservation-workbench` 双栏布局；grid item 默认可拉伸，但内部 `.panel-shell` 只是 `height: 100%`，在当前弹窗内容高度下没有稳定承接父级拉伸。

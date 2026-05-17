@@ -62,9 +62,6 @@ importers:
       pnpm:
         specifier: 10.33.0
         version: 10.33.0
-      screenfull:
-        specifier: 6.0.2
-        version: 6.0.2
       vue:
         specifier: 3.5.27
         version: 3.5.27(typescript@5.9.3)
@@ -3096,10 +3093,6 @@ packages:
     resolution: {integrity: sha512-NR2kvhWVFABmBm0AqgFw9OweQycs0Qs+/teJ9Su+BUY7up+f8S5F/Zi+7QtAqJlewsQyUNfzm1vRuM+20lBwRQ==}
     engines: {node: '>=16.0.0'}
     hasBin: true
-
-  screenfull@6.0.2:
-    resolution: {integrity: sha512-AQdy8s4WhNvUZ6P8F6PB21tSPIYKniic+Ogx0AacBMjKP1GUHN2E9URxQHtCusiwxudnCKkdy4GrHXPPJSkCCw==}
-    engines: {node: ^14.13.1 || >=16.0.0}
 
   scslre@0.3.0:
     resolution: {integrity: sha512-3A6sD0WYP7+QrjbfNA2FN3FsOaGGFoekCVgTyypy53gPxhbkCIjtO6YWgdrfM+n/8sI8JeXZOIxsHjMTNxQ4nQ==}
@@ -6850,8 +6843,6 @@ snapshots:
       sass-embedded-win32-arm64: 1.78.0
       sass-embedded-win32-ia32: 1.78.0
       sass-embedded-win32-x64: 1.78.0
-
-  screenfull@6.0.2: {}
 
   scslre@0.3.0:
     dependencies:

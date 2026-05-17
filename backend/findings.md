@@ -167,3 +167,7 @@
 - 没有可替代会议室时，冲突预约改为 `CANCELLED`，`cancelReason` 写入紧急调配原因；可替代时追加系统调配说明到原预约 `remark`。
 - AI 新增 `admin.emergency_reservations.preview` 和 `admin.emergency_reservations.confirm` 工具；普通用户请求抢占会被 Tool Registry 权限拒绝，管理员请求缺字段时先补参，字段齐全后返回确认卡片，确认后才调用后端确认服务。
 - 预览指纹为内存短 TTL 方案，符合“不新增表字段”的约束；服务重启、预览过期或占用变化后确认会要求重新预览。
+
+## 2026-05-17 后端整理边界检查
+- 检查后端公开接口和测试引用后，旧 `/api/v1/ai/chat` 链路仍有 `AiChatControllerTest`、`AiChatServiceImplTest` 和 AI 知识服务测试覆盖，不能仅因前端主助手不再调用就删除。
+- 紧急会议、通知发布、AI Planner/RAG 等后端新增能力均被控制器、服务或测试引用；本轮不做后端代码删除，避免改变已有公开 API。

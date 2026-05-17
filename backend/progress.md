@@ -635,3 +635,13 @@
 | 后端紧急会议目标测试 | `mvn -pl meeting-room-server "-Dtest=EmergencyReservationServiceImplTest,AdminEmergencyReservationControllerTest,AiAssistantServiceImplTest" test` | 紧急会议与 AI 相关测试通过 | 74 个测试通过 | passed |
 | 后端助手/紧急会议组合测试 | `mvn -pl meeting-room-server "-Dtest=AiAssistantServiceImplTest,AiAssistantSemanticServiceTest,AiAssistantPlannerServiceTest,AiAssistantTimeResolverTest,AiAssistantRagServiceTest,EmergencyReservationServiceImplTest,AdminEmergencyReservationControllerTest" test` | 助手链路和紧急会议测试通过 | 96 个测试通过 | passed |
 | 后端模块测试 | `mvn -pl meeting-room-server test` | `meeting-room-server` 模块通过 | 190 个测试通过 | passed |
+
+### 2026-05-17 后端整理边界检查
+- **状态：** completed
+- 执行的操作：
+  - 扫描后端 AI Chat、AI Assistant、资源文件、通知和紧急会议相关引用。
+  - 确认旧 AI Chat 仍是公开接口且有单元测试覆盖，本轮不删除。
+  - 确认未找到与前端旧通知页面同等证据充分的后端孤儿源码。
+- 创建/修改的文件：
+  - `backend/findings.md`
+  - `backend/progress.md`
