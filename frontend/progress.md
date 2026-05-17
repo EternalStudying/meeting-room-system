@@ -18,7 +18,7 @@
   - 补齐前端 API、页面、样式和 store 测试。
   - 使用 Playwright 在当前源码 Vite 服务上完成浏览器卡片渲染检查。
 - 创建/修改的文件：
-  - `功能测试清单.md`
+  - `完整功能测试清单.md`
   - `frontend/task_plan.md`
   - `frontend/findings.md`
   - `frontend/progress.md`
@@ -363,7 +363,7 @@
 - **状态：** completed
 - 执行的操作：
   - 使用 Playwright Local smoke 确认本机 Edge 自动化可用。
-  - 使用真实 5172 前端 `/#/assistant/index` 和真实 8081 后端补测 `功能测试清单.md` 8.74。
+  - 使用真实 5172 前端 `/#/assistant/index` 和真实 8081 后端补测 `完整功能测试清单.md` 8.74。
   - 依次输入查询类、RAG 类、普通用户管理员错误类、澄清类和补参类问题，验证信息型卡片隐藏、交互卡片显示。
 - 创建/修改的文件：
   - `codex-work/assistant-ui-real-full-smoke.cjs`

@@ -6,7 +6,7 @@
 - **状态：** completed
 - 执行的操作：
   - 阅读项目规则和 Planner 规格。
-  - 阅读后端 `.aiassistant` 规则。
+  - 阅读后端历史规则上下文。
   - 初步阅读 AI 后端控制器、服务、注册表、会话存储和部分动作处理器。
   - 将原本误建在项目根目录的规划文件移除，改为后端目录独立记录。
   - 阅读语义解析、Ollama client、schema validator、time resolver、assistant VO/DTO、ReservationService/RoomService/DashboardService 和现有后端测试。
@@ -18,7 +18,7 @@
   - 写操作统一返回确认卡片，确认后执行冻结参数快照。
   - 补齐 Tool Registry、服务层、语义层测试。
 - 创建/修改的文件：
-  - `功能测试清单.md`
+  - `完整功能测试清单.md`
   - `backend/task_plan.md`
   - `backend/findings.md`
   - `backend/progress.md`
@@ -315,11 +315,11 @@
 ### Task 9：更新手工清单和上下文文档
 - **状态：** completed
 - 执行的操作：
-  - 在 `功能测试清单.md` AI 助手章节补充 Planner v2/RAG 失败样本回归项。
+  - 在 `完整功能测试清单.md` AI 助手章节补充 Planner v2/RAG 失败样本回归项。
   - 记录后端 LLM-first Planner、fallback 边界、时间解析、取消会议室歧义保护和 RAG 知识范围。
   - 记录前端澄清卡片恢复和信息型卡片隐藏策略。
 - 创建/修改的文件：
-  - `功能测试清单.md`
+  - `完整功能测试清单.md`
   - `backend/task_plan.md`
   - `backend/findings.md`
   - `backend/progress.md`
@@ -427,7 +427,7 @@
 ### 阶段 12：AI 助手真实系统功能清单验证
 - **状态：** completed
 - 执行的操作：
-  - 使用真实 8081 后端登录 `zhangsan/admin`，按 `功能测试清单.md` 第 8 节编写并运行 `codex-work/assistant-real-system-test.cjs`。
+  - 使用真实 8081 后端登录 `zhangsan/admin`，按 `完整功能测试清单.md` 第 8 节编写并运行 `codex-work/assistant-real-system-test.cjs`。
   - 脚本通过 `/api/v1/ai/assistant/session`、`/message`、`/confirm`、`/cancel` 覆盖查询、追问、补参、确认、创建、修改、取消、评价、管理员审核和权限隔离。
   - 创建少量 `AI实测...` 夹具预约，用于验证明天下午预约详情、修改/取消、管理员待审操作。
   - 临时启动 18082 后端并设置 `--assistant.ai.enabled=false`，验证 Ollama 不可用/禁用时规则兜底仍可回答“明天有哪些会”；验证后停止临时后端。
@@ -448,19 +448,19 @@
 ### 阶段 13：AI 助手测试清单补充审查
 - **状态：** completed
 - 执行的操作：
-  - 复查 `功能测试清单.md` 第 8 节 AI 助手用例。
+  - 复查 `完整功能测试清单.md` 第 8 节 AI 助手用例。
   - 对照 Planner v2 + RAG 规格、Tool Registry、RAG 知识库和真实系统测试结果，识别还缺少的风险测试。
   - 修正 8.23 创建预约补参预期：不再要求用户手填参会人数，改为参会人列表自动推导。
   - 新增 8.54-8.74 共 21 条补充测试，覆盖 RAG、fallback、更多时间表达、状态过滤、写操作安全、管理员审核、上下文隔离和前端卡片策略。
 - 创建/修改的文件：
-  - `功能测试清单.md`
+  - `完整功能测试清单.md`
   - `backend/findings.md`
   - `backend/progress.md`
 
 ## 测试结果：2026-05-14 AI 助手测试清单补充审查
 | 测试 | 输入 | 预期结果 | 实际结果 | 状态 |
 |------|------|---------|---------|------|
-| AI 章节文档片段检查 | 抽取 `功能测试清单.md` 8.50-8.74 | 表格编号连续，新增项位于第 8 节 | 8.54-8.74 已写入，8.23 已更新 | passed |
+| AI 章节文档片段检查 | 抽取 `完整功能测试清单.md` 8.50-8.74 | 表格编号连续，新增项位于第 8 节 | 8.54-8.74 已写入，8.23 已更新 | passed |
 
 ### 阶段 14：AI 助手真实系统 9 项失败修复
 - **状态：** completed
@@ -497,14 +497,14 @@
 ### 阶段 15：AI 助手最新功能清单真实系统全量验证
 - **状态：** completed
 - 执行的操作：
-  - 读取最新 `功能测试清单.md` 第 8 节，基于旧真实脚本扩展为 `codex-work/assistant-real-system-full-test.cjs`。
+  - 读取最新 `完整功能测试清单.md` 第 8 节，基于旧真实脚本扩展为 `codex-work/assistant-real-system-full-test.cjs`。
   - 清理历史 `AI实测...` 夹具中的 PENDING/ACTIVE 数据，避免重复运行时冲突。
   - 使用真实 8081 后端覆盖查询、RAG、时间解析、上下文、创建/修改/取消/评价、管理员审核、状态过滤、写操作保护和安全边界。
   - 临时启动 18082 后端并设置 `--assistant.ai.enabled=false`，重新登录后验证 8.4 和 8.57；验证后已停止临时进程。
   - 使用真实 5172 前端和 Playwright 补测 8.74 卡片去重和隐藏规则。
-  - 将 `功能测试清单.md` 第 8 节结果列更新为本轮真实测试结果。
+  - 将 `完整功能测试清单.md` 第 8 节结果列更新为本轮真实测试结果。
 - 创建/修改的文件：
-  - `功能测试清单.md`
+  - `完整功能测试清单.md`
   - `codex-work/assistant-real-system-full-test.cjs`
   - `codex-work/assistant-real-system-full-results.json`
   - `codex-work/assistant-noai-fallback-full-test.cjs`
@@ -518,7 +518,7 @@
 ## 测试结果：2026-05-14 AI 助手最新功能清单真实系统全量验证
 | 测试 | 输入 | 预期结果 | 实际结果 | 状态 |
 |------|------|---------|---------|------|
-| 8081 接口全量脚本 | `node .\codex-work\assistant-real-system-full-test.cjs` | 覆盖 `功能测试清单.md` 8.1-8.74 | 73 通过、3 失败、2 跳过 | warning |
+| 8081 接口全量脚本 | `node .\codex-work\assistant-real-system-full-test.cjs` | 覆盖 `完整功能测试清单.md` 8.1-8.74 | 73 通过、3 失败、2 跳过 | warning |
 | 18082 禁用 AI fallback | `node .\codex-work\assistant-noai-fallback-full-test.cjs` | 8.4、8.57 不依赖 Ollama 仍能查询 | 2 通过、0 失败 | passed |
 | 5172 真实页面卡片规则 | `run-playwright.ps1 codex-work/assistant-ui-real-full-smoke.cjs` | 8.74 信息型卡片隐藏，交互卡片显示 | `ok=true`，欢迎语 1 次，旧错误 0 次 | passed |
 | 失败项 | 8.62、8.65、8.71 | 应符合最新清单 | 均与清单预期不一致，见 `backend/findings.md` | failed |
@@ -533,7 +533,7 @@
   - 修复管理员按预约号审核：优先识别 `RSV...` 预约号，按待审核列表解析真实数据库 ID 后再返回确认卡片。
   - 重启真实 8081 后端，刷新 `zhangsan/admin` token，使用真实系统全量脚本复验。
 - 创建/修改的文件：
-  - `功能测试清单.md`
+  - `完整功能测试清单.md`
   - `backend/meeting-room-server/src/main/java/com/llf/service/impl/AiAssistantServiceImpl.java`
   - `backend/meeting-room-server/src/main/java/com/llf/assistant/handler/ReservationAssistantActionHandler.java`
   - `backend/meeting-room-server/src/main/java/com/llf/assistant/handler/AdminReservationAssistantActionHandler.java`
@@ -558,16 +558,16 @@
 - 执行的操作：
   - 按用户要求重新运行后端 AI 助手目标测试、后端模块全量测试和真实 8081 接口全量脚本。
   - 复核 8.38-8.40 失败原因，确认张三当前可访问的 3 条已结束预约均已有评价记录，真实系统返回“预约不能评价”。
-  - 将 `功能测试清单.md` 中 8.38-8.40 的结果从 `[ √ ]` 改为 `[ × ]`。
+  - 将 `完整功能测试清单.md` 中 8.38-8.40 的结果从 `[ √ ]` 改为 `[ × ]`。
 - 创建/修改的文件：
-  - `功能测试清单.md`
+  - `完整功能测试清单.md`
 
 ## 测试结果：2026-05-14 AI 助手当前通过性复测
 | 测试 | 输入 | 预期结果 | 实际结果 | 状态 |
 |------|------|---------|---------|------|
 | 后端助手目标测试 | `mvn -pl meeting-room-server "-Dtest=AiAssistantServiceImplTest,AiAssistantSemanticServiceTest,AiAssistantPlannerServiceTest,AiAssistantTimeResolverTest,AiAssistantRagServiceTest" test` | 助手链路测试通过 | 84 个测试通过 | passed |
 | 后端模块测试 | `mvn -pl meeting-room-server test` | meeting-room-server 模块测试通过 | 178 个测试通过 | passed |
-| 真实系统全量脚本 | `node .\codex-work\assistant-real-system-full-test.cjs` | `功能测试清单.md` 第 8 节当前均可通过或明确跳过 | 73 通过、3 失败、2 跳过；失败项为 8.38-8.40 评价链路 | failed |
+| 真实系统全量脚本 | `node .\codex-work\assistant-real-system-full-test.cjs` | `完整功能测试清单.md` 第 8 节当前均可通过或明确跳过 | 73 通过、3 失败、2 跳过；失败项为 8.38-8.40 评价链路 | failed |
 
 ### 阶段 17：AI 助手创建预约设备后置补参修复
 - **状态：** completed

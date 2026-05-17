@@ -53,7 +53,6 @@
 - 修复决策：选中的预约不可访问时直接返回可恢复错误，不再丢弃参数并重复追问；取消/修改/评价在进入确认前按 `canCancel/canEdit/reviewed` 做能力过滤；详情 SQL 与列表 SQL 对齐，允许参与者查看详情但 `canEdit/canCancel` 仅组织者为 true。
 
 ## 资源
-- `E:\project\meeting-room\backend\.aiassistant\rules\AGENTS.md`
 - `E:\project\meeting-room\backend\meeting-room-server\src\main\java\com\llf\controller\AiAssistantController.java`
 - `E:\project\meeting-room\backend\meeting-room-server\src\main\java\com\llf\controller\AiChatController.java`
 - `E:\project\meeting-room\backend\meeting-room-server\src\main\java\com\llf\service\impl\AiAssistantServiceImpl.java`
@@ -101,7 +100,7 @@
 - 补充：`RoomService` 暴露 `deviceOptions()`，助手复用会议室设备选项作为设备需求可选项；`RoomController` 也改为通过 service 返回 locations 和 device options。
 
 ## 2026-05-14 AI 助手真实系统清单验证
-- 使用真实 8081 后端和 5172 前端按 `功能测试清单.md` 第 8 节验证 AI 助手；接口级脚本覆盖 53 个用例，浏览器脚本补测欢迎语、澄清卡片和旧错误文案。
+- 使用真实 8081 后端和 5172 前端按 `完整功能测试清单.md` 第 8 节验证 AI 助手；接口级脚本覆盖 53 个用例，浏览器脚本补测欢迎语、澄清卡片和旧错误文案。
 - 8.4 通过临时 18082 后端加 `--assistant.ai.enabled=false` 验证，关闭 LLM 主路径后“明天有哪些会”仍返回预约查询结果，没有“当前消息服务暂时不可用”。
 - 发现 9 个不符合清单预期的点：
   - `帮我看看明天的` 直接查询明天日历，而不是澄清追问。
@@ -113,7 +112,7 @@
 - 测试期间创建了 `AI实测...` 开头的夹具预约：`1011` 已创建后修改并取消，`1012`、`1013`、`1014`、`1015` 仍为待审核，用于后续复现管理员 AI 权限问题。
 
 ## 2026-05-14 AI 助手测试清单补充审查
-- `功能测试清单.md` 第 8 节原本覆盖 14 个工具和 Planner v2 五条失败样本，但缺少若干容易回归的边界：RAG 管理规则/越界、混合规则与操作请求、Ollama 禁用后的复杂 fallback、更多自然时间表达、预约状态过滤、发起/参与范围、数字标题误当 ID、确认参数冻结、取消写操作确认、创建冲突/容量/设备保护、AI 参会人候选保护、管理员按预约号审核、审核冲突重校验、新会话上下文清空和前端信息型卡片隐藏。
+- `完整功能测试清单.md` 第 8 节原本覆盖 14 个工具和 Planner v2 五条失败样本，但缺少若干容易回归的边界：RAG 管理规则/越界、混合规则与操作请求、Ollama 禁用后的复杂 fallback、更多自然时间表达、预约状态过滤、发起/参与范围、数字标题误当 ID、确认参数冻结、取消写操作确认、创建冲突/容量/设备保护、AI 参会人候选保护、管理员按预约号审核、审核冲突重校验、新会话上下文清空和前端信息型卡片隐藏。
 - 已将这些风险补充为 8.54-8.74，并把 8.23 的“参会人数”描述修正为当前设计：用户不手填参会人数，系统从参会人列表推导。
 
 ## 2026-05-14 AI 助手真实系统 9 项失败修复
@@ -126,7 +125,7 @@
 - 验证结果：后端助手目标测试 80 个通过，meeting-room-server 模块测试 174 个通过；真实系统脚本最新结果为 54 通过、0 失败、1 跳过，跳过项是脚本自身未关闭 Ollama 的 8.4。
 
 ## 2026-05-14 AI 助手最新清单真实系统全量验证
-- 使用真实 8081 后端按 `功能测试清单.md` 第 8 节 8.1-8.74 重跑接口级验证；脚本为 `codex-work/assistant-real-system-full-test.cjs`，结果写入 `codex-work/assistant-real-system-full-results.json`。
+- 使用真实 8081 后端按 `完整功能测试清单.md` 第 8 节 8.1-8.74 重跑接口级验证；脚本为 `codex-work/assistant-real-system-full-test.cjs`，结果写入 `codex-work/assistant-real-system-full-results.json`。
 - 8081 正常 AI 路径结果：73 通过、3 失败、2 跳过。跳过项中 8.4/8.57 已通过临时 18082 禁用 AI 后端补测，8.72 因真实公开 API 创建阶段会先阻止冲突待审单，无法不改数据库构造审核确认时冲突夹具。
 - 18082 禁用 AI 路径结果：`codex-work/assistant-noai-fallback-full-test.cjs` 验证 8.4 和 8.57 均通过，禁用 `assistant.ai.enabled=false` 后仍能回答“明天有哪些会”“2026-05-15有哪些会议”“明天9点到11点有哪些会议室可以用”。
 - 本轮确认 3 个真实功能缺口：
@@ -147,7 +146,7 @@
 - 真实 8081 接口全量脚本仍未完全通过：73 通过、3 失败、2 跳过。
 - 失败项为 8.38、8.39、8.40 评价链路；实际返回“这条预约当前不能评价。只有已结束且尚未评价的预约可以评价。”
 - 数据复核：张三当前可访问的 3 条已结束预约 `RSV-TEST-1002`、`RSV-TEST-1001`、`RSV-TEST-1007` 都已经存在 `reservation_review` 记录，因此“最近结束的会/已通过部门例会”不会进入评价确认。
-- 结论：8.62、8.65、8.71 已通过；当前未全绿的直接原因是评价测试依赖固定历史数据而没有准备“已结束且未评价”的新夹具。`功能测试清单.md` 已将 8.38-8.40 标为 `[ × ]`。
+- 结论：8.62、8.65、8.71 已通过；当前未全绿的直接原因是评价测试依赖固定历史数据而没有准备“已结束且未评价”的新夹具。`完整功能测试清单.md` 已将 8.38-8.40 标为 `[ × ]`。
 
 ## 2026-05-14 AI 助手创建预约设备后置补参
 - 用户反馈设备不应出现在首张创建预约补参卡，而应作为后续补参卡出现，然后再筛选会议室。

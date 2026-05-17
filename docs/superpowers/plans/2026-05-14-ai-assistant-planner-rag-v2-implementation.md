@@ -54,7 +54,7 @@ Frontend modify only if tests show a rendering gap:
 
 Docs modify:
 
-- `功能测试清单.md`
+- `完整功能测试清单.md`
 - `backend/findings.md`
 - `backend/progress.md`
 - `backend/task_plan.md`
@@ -575,7 +575,7 @@ git commit -m "test: cover assistant planner v2 cards"
 
 **Files:**
 
-- Modify: `功能测试清单.md`
+- Modify: `完整功能测试清单.md`
 - Modify: `backend/findings.md`
 - Modify: `backend/progress.md`
 - Modify: `backend/task_plan.md`
@@ -604,7 +604,7 @@ Document whether frontend changes were needed.
 - [ ] **Step 4: Commit docs**
 
 ```bash
-git add 功能测试清单.md backend/findings.md backend/progress.md backend/task_plan.md frontend/findings.md frontend/progress.md frontend/task_plan.md
+git add 完整功能测试清单.md backend/findings.md backend/progress.md backend/task_plan.md frontend/findings.md frontend/progress.md frontend/task_plan.md
 git commit -m "docs: update assistant planner v2 verification"
 ```
 
