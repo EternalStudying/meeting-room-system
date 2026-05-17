@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs"
+import { resolve } from "node:path"
 import { flushPromises, mount } from "@vue/test-utils"
 import ElementPlus from "element-plus"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
@@ -47,6 +49,20 @@ const buildRoom = (overrides: Partial<RoomData> = {}): RoomData => ({
   ...overrides
 })
 
+function buildRect(height: number): DOMRect {
+  return {
+    x: 0,
+    y: 0,
+    width: 520,
+    height,
+    top: 0,
+    left: 0,
+    right: 520,
+    bottom: height,
+    toJSON: () => ({})
+  } as DOMRect
+}
+
 async function mountDialog(preset: Record<string, unknown> = {}, rooms: RoomData[] = [buildRoom()], emergency = false) {
   const wrapper = mount(ReservationCreateDialog, {
     attachTo: document.body,
@@ -70,6 +86,51 @@ async function mountDialog(preset: Record<string, unknown> = {}, rooms: RoomData
 }
 
 describe("ReservationCreateDialog", () => {
+  it("预约信息和智能推荐面板保持等高拉伸", () => {
+    const source = readFileSync(resolve(__dirname, "../../src/components/ReservationCreateDialog.vue"), "utf-8")
+    const getRuleBody = (selector: string) => {
+      const escapedSelector = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+      return source.match(new RegExp(`${escapedSelector}\\s*\\{([\\s\\S]*?)\\n\\}`))?.[1] ?? ""
+    }
+
+    expect(getRuleBody(".reservation-workbench")).toContain("align-items: start")
+    expect(getRuleBody(".reservation-workbench.is-emergency")).toContain("align-items: stretch")
+    expect(getRuleBody(".workbench-panel")).toContain("display: flex")
+    expect(getRuleBody(".panel-shell")).toContain("flex: 1")
+    expect(getRuleBody(".recommendation-list")).toContain("flex: 1")
+    expect(getRuleBody(".recommendation-list")).toContain("min-height: 0")
+    expect(getRuleBody(".recommendation-empty")).toContain("flex: 1")
+  })
+
+  it("普通预约用左侧表单高度限制智能推荐面板", async () => {
+    const rectSpy = vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (this: HTMLElement) {
+      const element = this
+      if (element.classList.contains("panel-shell") && element.closest(".workbench-panel--form")) {
+        return buildRect(640)
+      }
+      return buildRect(0)
+    })
+
+    const wrapper = await mountDialog({
+      roomId: 101,
+      title: "项目周会",
+      meetingDate: "2026-04-20",
+      startClock: "09:00",
+      endClock: "10:30"
+    })
+    await flushPromises()
+
+    const workbench = wrapper.find(".reservation-workbench")
+    const recommendationShell = document.body.querySelector(".reservation-workbench-dialog .recommendation-shell") as HTMLElement
+
+    expect(workbench.classes()).toContain("is-standard")
+    expect(workbench.classes()).not.toContain("is-emergency")
+    expect(recommendationShell.style.height).toBe("640px")
+
+    rectSpy.mockRestore()
+    wrapper.unmount()
+  })
+
   beforeEach(() => {
     reservationApiMocks.createReservationApi.mockReset()
     reservationApiMocks.getReservationRecommendationsApi.mockReset()

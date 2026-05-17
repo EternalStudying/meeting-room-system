@@ -1,6 +1,6 @@
 ﻿<script lang="ts" setup>
 import { Plus } from "@element-plus/icons-vue"
-import { computed, onBeforeUnmount, reactive, ref, watch } from "vue"
+import { computed, nextTick, onBeforeUnmount, reactive, ref, watch } from "vue"
 import dayjs from "dayjs"
 import {
   confirmAdminEmergencyReservationApi,
@@ -48,6 +48,8 @@ const recommending = ref(false)
 const recommendations = ref<ReservationRecommendationItem[]>([])
 const recommendationError = ref("")
 const recommendTimer = ref<number | null>(null)
+const formShellRef = ref<HTMLElement | null>(null)
+const standardFormShellHeight = ref(0)
 const participantSearching = ref(false)
 const participantOptions = ref<UserSearchOption[]>([])
 const participantOptionMap = ref<Record<number, UserSearchOption>>({})
@@ -58,6 +60,7 @@ const emergencyPreview = ref<EmergencyReservationPreviewData | null>(null)
 const emergencyPayload = ref<EmergencyReservationRequestData | null>(null)
 const timeOptions = createTimeOptions()
 const form = reactive<ReservationCreateDraft>(createReservationCreateDraft())
+let formShellResizeObserver: ResizeObserver | null = null
 
 const mergedRooms = computed<RoomData[]>(() => {
   const roomMap = new Map<number, RoomData>()
@@ -98,6 +101,11 @@ const selectedRoom = computed(() => {
 
 const topRecommendation = computed(() => {
   return recommendations.value[0] ?? null
+})
+
+const standardRecommendationShellStyle = computed(() => {
+  if (props.emergency || standardFormShellHeight.value <= 0) return undefined
+  return { height: `${standardFormShellHeight.value}px` }
 })
 
 const deviceOptions = computed<DeviceOption[]>(() => {
@@ -192,8 +200,33 @@ watch(
   { immediate: true }
 )
 
+watch(
+  () => [props.modelValue, props.emergency] as const,
+  async ([visible, emergency]) => {
+    if (!visible || emergency) {
+      stopObserveFormShell()
+      standardFormShellHeight.value = 0
+      return
+    }
+
+    await nextTick()
+    observeFormShell()
+  },
+  { immediate: true, flush: "post" }
+)
+
+watch(
+  formShellRef,
+  (element) => {
+    if (!element || !props.modelValue || props.emergency) return
+    observeFormShell()
+  },
+  { flush: "post" }
+)
+
 onBeforeUnmount(() => {
   clearRecommendTimer()
+  stopObserveFormShell()
 })
 
 function applyPreset() {
@@ -251,6 +284,28 @@ function clearRecommendTimer() {
     window.clearTimeout(recommendTimer.value)
     recommendTimer.value = null
   }
+}
+
+function observeFormShell() {
+  stopObserveFormShell()
+  updateStandardFormShellHeight()
+
+  if (!formShellRef.value || typeof ResizeObserver === "undefined") return
+
+  formShellResizeObserver = new ResizeObserver(() => {
+    updateStandardFormShellHeight()
+  })
+  formShellResizeObserver.observe(formShellRef.value)
+}
+
+function stopObserveFormShell() {
+  formShellResizeObserver?.disconnect()
+  formShellResizeObserver = null
+}
+
+function updateStandardFormShellHeight() {
+  if (props.emergency || !formShellRef.value) return
+  standardFormShellHeight.value = Math.ceil(formShellRef.value.getBoundingClientRect().height)
 }
 
 function scheduleRecommendationFetch() {
@@ -543,9 +598,9 @@ defineExpose({
       </div>
     </template>
 
-    <div class="reservation-workbench">
+    <div class="reservation-workbench" :class="{ 'is-emergency': emergency, 'is-standard': !emergency }">
       <section class="workbench-panel workbench-panel--form">
-        <div class="panel-shell">
+        <div ref="formShellRef" class="panel-shell">
           <div class="panel-title-row">
             <p class="panel-kicker">预约信息</p>
           </div>
@@ -706,7 +761,7 @@ defineExpose({
       </section>
 
       <section class="workbench-panel workbench-panel--recommend">
-        <div class="panel-shell recommendation-shell" v-loading="recommending">
+        <div class="panel-shell recommendation-shell" :style="standardRecommendationShellStyle" v-loading="recommending">
           <div class="panel-title-row panel-title-row--recommend">
             <p class="panel-kicker">智能推荐</p>
             <div v-if="topRecommendation" class="top-badge">最优 {{ topRecommendation.score }} 分</div>
@@ -918,10 +973,21 @@ defineExpose({
 .reservation-workbench {
   display: grid;
   grid-template-columns: minmax(0, 1.08fr) minmax(340px, 0.92fr);
+  align-items: start;
   gap: 18px;
 }
 
+.reservation-workbench.is-emergency {
+  align-items: stretch;
+}
+
+.workbench-panel {
+  display: flex;
+  min-width: 0;
+}
+
 .panel-shell {
+  flex: 1;
   height: 100%;
   padding: 20px;
   border: 1px solid rgba(208, 221, 239, 0.92);
@@ -1126,9 +1192,10 @@ defineExpose({
 }
 
 .recommendation-list {
+  flex: 1;
   display: grid;
   gap: 14px;
-  max-height: 460px;
+  min-height: 0;
   padding-top: 4px;
   padding-right: 4px;
   overflow: auto;
@@ -1237,6 +1304,7 @@ defineExpose({
 }
 
 .recommendation-empty {
+  flex: 1;
   display: grid;
   place-items: center;
   min-height: 280px;

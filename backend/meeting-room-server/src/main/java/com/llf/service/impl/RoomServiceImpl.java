@@ -290,7 +290,11 @@ public class RoomServiceImpl implements RoomService {
         if (!"MAINTENANCE".equals(normalizeRoomStatus(status))) {
             return null;
         }
-        return trimToNull(maintenanceRemark);
+        String remark = trimToNull(maintenanceRemark);
+        if (remark == null) {
+            throw new BizException(400, "maintenanceRemark must not be blank when status is MAINTENANCE");
+        }
+        return remark;
     }
 
     private String trimToNull(String text) {

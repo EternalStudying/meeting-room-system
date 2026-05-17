@@ -18,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -112,6 +113,56 @@ class RoomServiceImplTest {
         roomService.adminUpdateStatus(10L, dto);
 
         verify(roomMapper).updateStatusById(eq(10L), eq("MAINTENANCE"), eq("检修"));
+    }
+
+    @Test
+    void adminUpdateStatus_shouldRejectMaintenanceWithoutRemark() {
+        when(roomMapper.selectRoomById(10L)).thenReturn(room(10L));
+        AdminRoomStatusDTO dto = new AdminRoomStatusDTO();
+        dto.setStatus("MAINTENANCE");
+        dto.setMaintenanceRemark("");
+
+        BizException ex = assertThrows(BizException.class, () -> roomService.adminUpdateStatus(10L, dto));
+
+        assertEquals(400, ex.getCode());
+        verify(roomMapper, never()).updateStatusById(any(), any(), any());
+    }
+
+    @Test
+    void adminUpdateStatus_shouldRejectNumericMaintenanceWithBlankRemark() {
+        when(roomMapper.selectRoomById(10L)).thenReturn(room(10L));
+        AdminRoomStatusDTO dto = new AdminRoomStatusDTO();
+        dto.setStatus("2");
+        dto.setMaintenanceRemark("   ");
+
+        BizException ex = assertThrows(BizException.class, () -> roomService.adminUpdateStatus(10L, dto));
+
+        assertEquals(400, ex.getCode());
+        verify(roomMapper, never()).updateStatusById(any(), any(), any());
+    }
+
+    @Test
+    void adminUpdateStatus_shouldAllowMaintenanceWithRemark() {
+        when(roomMapper.selectRoomById(10L)).thenReturn(room(10L));
+        AdminRoomStatusDTO dto = new AdminRoomStatusDTO();
+        dto.setStatus("MAINTENANCE");
+        dto.setMaintenanceRemark("  检修  ");
+
+        roomService.adminUpdateStatus(10L, dto);
+
+        verify(roomMapper).updateStatusById(eq(10L), eq("MAINTENANCE"), eq("检修"));
+    }
+
+    @Test
+    void adminUpdateStatus_shouldClearRemarkForAvailableStatus() {
+        when(roomMapper.selectRoomById(10L)).thenReturn(room(10L));
+        AdminRoomStatusDTO dto = new AdminRoomStatusDTO();
+        dto.setStatus("1");
+        dto.setMaintenanceRemark("旧备注");
+
+        roomService.adminUpdateStatus(10L, dto);
+
+        verify(roomMapper).updateStatusById(eq(10L), eq("AVAILABLE"), eq(null));
     }
 
     private RoomPageDeviceVO device(int quantity) {

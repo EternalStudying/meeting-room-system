@@ -144,3 +144,12 @@
 - 发布失败时弹窗保持打开，表单内容不清空，提示“通知发布失败，请稍后重试”。
 - admin 判断使用 `useUserStore().roles`，只有角色小写后等于 `admin` 时显示铃铛弹层“发布通知”按钮。
 - `frontend/src/router/index.ts` 已移除动态路由 `AdminNotifications`，管理端侧边栏不再展示“通知发布”独立菜单入口；旧页面文件暂保留但不再通过动态路由进入。
+
+## 2026-05-15 预约创建弹窗左右面板等高
+- 问题位于 `frontend/src/components/ReservationCreateDialog.vue` 的 `.reservation-workbench` 双栏布局；grid item 默认可拉伸，但内部 `.panel-shell` 只是 `height: 100%`，在当前弹窗内容高度下没有稳定承接父级拉伸。
+- 第一次修正只让外层面板等高，但 `.recommendation-list` 仍保留 `max-height: 460px`，导致右侧内容停在中部、底部留出大块空白；真实截图里的问题并未解决。
+- 第二次反馈显示普通预约左侧表单更短时，单一 `align-items: stretch` 又会让右侧推荐卡片撑高左侧空白；普通预约和紧急会议需要分支策略。
+- 修复方式：普通预约 `.reservation-workbench.is-standard` 使用 `align-items: start`，通过 `ResizeObserver` 读取左侧表单面板自然高度并写入右侧推荐面板高度；紧急会议 `.is-emergency` 保留 `align-items: stretch`。
+- `.recommendation-list` 和 `.recommendation-empty` 继续参与纵向 flex 分配，推荐卡片过多时在右侧列表内部滚动，不再撑高弹窗。
+- 回归测试在 `tests/components/ReservationCreateDialog.test.ts` 中覆盖普通预约右侧高度由左侧限制、紧急会议保留拉伸样式。
+- Playwright Local 页面验证在 5172 同时检查普通预约和紧急会议：普通预约左/右约 722/723，右侧列表内部滚动；紧急会议左/右约 1106/1106，按钮仍贴近底部。

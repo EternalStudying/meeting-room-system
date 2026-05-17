@@ -81,6 +81,63 @@
 | 管理端会议室前端红灯 | `pnpm test -- run tests/pages/AdminRooms.test.ts tests/common/apis/RoomsApi.test.ts` | 新增回归用例失败 | 5 个前端断言失败，覆盖当前缺陷 | reproduced |
 | 管理端会议室前端目标测试 | `pnpm test -- run tests/pages/AdminRooms.test.ts tests/common/apis/RoomsApi.test.ts` | 目标用例通过 | 2 个文件、12 个测试通过 | passed |
 | 前端构建 | `pnpm build:staging` | TypeScript 和构建通过 | 通过；仅有既有 `%VITE_APP_TITLE%` 未定义警告 | passed |
+
+### 2026-05-17 完整功能测试清单全量执行
+- **状态：** completed
+- 执行的操作：
+  - 按 `完整功能测试清单.md` 全部 296 个编号测试项做自动化、接口、安全并发和真实浏览器分层验证。
+  - 重跑前端全量单测、前端构建、后端模块测试、AI 助手目标测试、紧急会议目标测试、通知/预约/管理端/用户端目标测试。
+  - 新增并执行 `codex-work/full-api-regression.cjs`，覆盖后端接口级清单、数据一致性、并发和安全项。
+  - 新增并执行 `codex-work/full-browser-regression.cjs`，覆盖真实 5172/8081 下的登录、权限、概览、会议室、预约弹窗、日历、我的预约、通知、管理端、统计、AI、响应式和 XSS 页面链路。
+  - 临时启动 18082 后端并设置 `--assistant.ai.enabled=false`，重取验证码登录 token 后执行 noAI fallback 验证；验证后停止临时进程。
+  - 新增并执行 `codex-work/calendar-drag-real-browser.cjs`，通过真实鼠标拖拽验证本人 `ACTIVE` 预约可改期、拖到冲突时后端拒绝且前端回滚。
+  - 重跑预约弹窗高度专项和通知发布迁移专项，避免依赖旧证据。
+  - 生成 `完整功能测试执行报告.md`。
+- 创建/修改的文件：
+  - `完整功能测试执行报告.md`
+  - `codex-work/full-api-regression.cjs`
+  - `codex-work/full-browser-regression.cjs`
+  - `codex-work/calendar-drag-real-browser.cjs`
+  - `codex-work/full-api-regression-result-latest.json`
+  - `codex-work/full-browser-regression-result-latest.json`
+  - `codex-work/calendar-drag-real-browser-result.json`
+  - `codex-work/assistant-noai-fallback-full-result.json`
+  - `codex-work/reservation-dialog-equal-height-smoke-result.json`
+  - `codex-work/notification-publish-dialog-smoke-result.json`
+  - `frontend/progress.md`
+
+## 测试结果：2026-05-17 完整功能测试清单全量执行
+| 测试 | 输入 | 预期结果 | 实际结果 | 状态 |
+|------|------|---------|---------|------|
+| 清单覆盖 | `完整功能测试清单.md` | 296 个编号项均执行并有结果 | 修复后 296 通过、0 失败、0 跳过 | passed |
+| 前端全量单测 | `pnpm test -- run` | 前端回归通过 | 27 个测试文件、132 个测试通过 | passed |
+| 前端构建 | `pnpm build:staging` | 构建通过 | 通过；仅有既有 `%VITE_APP_TITLE%` 未定义警告 | passed |
+| 后端模块测试 | `mvn -pl meeting-room-server test` | 后端模块回归通过 | 190 个测试通过，`BUILD SUCCESS` | passed |
+| 接口/安全/并发 | `node codex-work/full-api-regression.cjs` | 后端接口级清单和数据一致性通过 | 修复后复测 59 通过、0 失败；`15.33` passed | passed |
+| noAI fallback | `node codex-work/assistant-noai-fallback-full-test.cjs` against 18082 | 禁用 AI 后查询 fallback 可用 | 2 通过、0 失败；临时 18082 已停止 | passed |
+| 主链路真实点击 | `run-playwright.ps1 codex-work/real-browser-e2e-test.cjs` | 关键端到端通过 | 11 通过、0 失败 | passed |
+| 补充真实点击 | `run-playwright.ps1 codex-work/real-browser-extra-regression.cjs` | 权限、404、筛选、校验、统计通过 | 9 通过、0 失败 | passed |
+| 扩展真实浏览器回归 | `run-playwright.ps1 codex-work/full-browser-regression.cjs` | 主要 UI 功能面通过 | 18 通过、0 失败 | passed |
+| 日历真实拖拽 | `run-playwright.ps1 codex-work/calendar-drag-real-browser.cjs` | 拖拽修改成功，冲突拖拽回滚 | 2 通过、0 失败 | passed |
+| 预约弹窗视觉专项 | `run-playwright.ps1 codex-work/reservation-dialog-equal-height-smoke.cjs` | 普通/紧急双栏高度稳定 | 普通高度差 0.83px，紧急高度差 0px | passed |
+| 通知发布专项 | `run-playwright.ps1 codex-work/notification-publish-dialog-smoke.cjs` | admin 发布入口可用，普通用户隐藏 | `ok=true`，发布后刷新 | passed |
+
+### 2026-05-17 15.33 修复后复测
+- **状态：** completed
+- 执行的操作：
+  - 在 8081 已重启到最新后端代码后，重跑 `codex-work/full-api-regression.cjs`。
+  - 重点复核 `15.33 PATCH /admin/rooms/{id}/status`：切换 `MAINTENANCE` 且空维护备注不再返回 success。
+  - 更新 `完整功能测试执行报告.md`，将完整清单结论调整为修复后全绿。
+- 创建/修改的文件：
+  - `完整功能测试执行报告.md`
+  - `codex-work/full-api-regression-result-latest.json`
+  - `frontend/progress.md`
+
+## 测试结果：2026-05-17 15.33 修复后复测
+| 测试 | 输入 | 预期结果 | 实际结果 | 状态 |
+|------|------|---------|---------|------|
+| 接口/安全/并发复测 | `node codex-work/full-api-regression.cjs` | 15.33 修复，接口级清单全绿 | 59 通过、0 失败；`15.33` passed | passed |
+| 完整清单结论 | `完整功能测试执行报告.md` | 原 1 个失败关闭 | 296 通过、0 失败、0 跳过 | passed |
 | Playwright 真实浏览器检查 | Edge 打开 `http://127.0.0.1:5172/#/admin/rooms` 并 mock 管理端接口 | 设备筛选、分页详情、新增弹窗设备选择可用 | 通过，截图见 `codex-work/admin-rooms-smoke.png` | passed |
 
 ### 阶段 6：管理端会议室分页详情二次修复
@@ -436,3 +493,56 @@
 | 前端构建 | `pnpm build:staging` | TypeScript 和构建通过 | 通过；仅有既有 `%VITE_APP_TITLE%` 未定义警告 | passed |
 | Playwright Local smoke | `run-playwright.ps1 smoke.cjs` | Edge 自动化可用 | `{"ok":true,"browser":"msedge","text":"playwright-local ok"}` | passed |
 | 页面级通知发布检查 | `run-playwright.ps1 codex-work/notification-publish-dialog-smoke.cjs` | admin 可见并打开发布弹窗，普通用户隐藏，发布后刷新摘要和列表，菜单无通知发布 | `ok=true`，发布接口 1 次，刷新通过 | passed |
+
+### 阶段 20：预约创建弹窗普通/紧急高度分支
+- **状态：** completed
+- 执行的操作：
+  - 定位 `ReservationCreateDialog` 中“预约信息”和“智能推荐”的双栏结构。
+  - 先新增等高拉伸回归测试，确认现有样式缺少 `.workbench-panel` flex 承接。
+  - 调整 `.reservation-workbench`、`.workbench-panel` 和 `.panel-shell`，让较矮面板跟随较高面板拉伸。
+  - 修正 `.recommendation-list` 固定高度导致按钮停在半截的问题，让推荐列表填满剩余空间并把按钮压到右侧面板底部。
+  - 普通预约改为读取左侧表单自然高度并限制右侧推荐面板，避免右侧推荐卡片撑高左侧空白。
+  - 紧急会议保留更高左侧表单驱动右侧等高的逻辑。
+  - 使用 Playwright Local 在 5172 同时打开普通预约和紧急会议弹窗，测量左右面板、推荐列表高度和按钮底部间距。
+- 创建/修改的文件：
+  - `frontend/src/components/ReservationCreateDialog.vue`
+  - `frontend/tests/components/ReservationCreateDialog.test.ts`
+  - `frontend/task_plan.md`
+  - `frontend/findings.md`
+  - `frontend/progress.md`
+  - `codex-work/reservation-dialog-equal-height-smoke.cjs`
+  - `codex-work/reservation-dialog-equal-height-smoke-result.json`
+  - `codex-work/reservation-dialog-standard-height-smoke.png`
+  - `codex-work/reservation-dialog-emergency-height-smoke.png`
+
+## 测试结果：2026-05-15 预约创建弹窗普通/紧急高度分支
+| 测试 | 输入 | 预期结果 | 实际结果 | 状态 |
+|------|------|---------|---------|------|
+| 样式红灯 | `pnpm test -- run tests/components/ReservationCreateDialog.test.ts` | 普通预约应有 `is-standard` 分支并用左侧高度限制右侧 | 失败：仍是全局 `align-items: stretch`，普通预约没有高度限制 | reproduced |
+| 目标单测 | `pnpm test -- run tests/components/ReservationCreateDialog.test.ts` | 预约弹窗组件测试通过 | 1 个文件、8 个测试通过 | passed |
+| Playwright Local smoke | `run-playwright.ps1 smoke.cjs` | Edge 自动化可用 | `{"ok":true,"browser":"msedge","text":"playwright-local ok"}` | passed |
+| 页面级高度测量 | `run-playwright.ps1 codex-work/reservation-dialog-equal-height-smoke.cjs` | 普通预约右侧缩到左侧高度；紧急会议右侧跟随更高左侧；按钮贴近面板底部 | 普通预约 `form≈722/recommend≈723` 且列表内部滚动；紧急会议 `form≈1106/recommend≈1106` | passed |
+| 前端构建 | `pnpm build:staging` | TypeScript 和构建通过 | 通过；仅有既有 `%VITE_APP_TITLE%` 未定义警告 | passed |
+
+### 2026-05-17 真实浏览器测试清单执行
+- **状态：** completed
+- 执行的操作：
+  - 使用 Playwright Local + Microsoft Edge 访问真实 `5172` 前端和 `8081` 后端。
+  - 通过真实验证码/登录接口换取 `zhangsan` 和 `admin` token，再注入浏览器执行真实点击链路。
+  - 主链路覆盖：未登录跳转、验证码错误、普通用户权限、会议空间预约弹窗、普通用户创建预约、管理员审批、日历紧急入口回归、顶部铃铛发布通知、普通用户接收通知、管理端页面冒烟、AI 助手查询与补参卡。
+  - 补充回归覆盖：普通用户直访管理路由、404 错误页、会议室搜索和维护房间限制、日历周/月切换、我的预约范围切换、普通用户通知发布权限、驳回原因必填、紧急会议空表单校验、统计周期切换。
+  - 生成 `真实浏览器测试报告.md`、主链路/补充回归 JSON 结果和截图证据。
+- 创建/修改的文件：
+  - `真实浏览器测试报告.md`
+  - `codex-work/real-browser-e2e-test.cjs`
+  - `codex-work/real-browser-extra-regression.cjs`
+  - `codex-work/real-browser-e2e-result-latest.json`
+  - `codex-work/real-browser-extra-result-latest.json`
+  - `frontend/progress.md`
+
+## 测试结果：2026-05-17 真实浏览器测试清单执行
+| 测试 | 输入 | 预期结果 | 实际结果 | 状态 |
+|------|------|---------|---------|------|
+| Playwright Local smoke | `run-playwright.ps1 smoke.cjs` | Edge 自动化可运行 | `{"ok":true,"browser":"msedge","text":"playwright-local ok"}` | passed |
+| 主链路真实点击 | `run-playwright.ps1 codex-work/real-browser-e2e-test.cjs` | P0/P1 主链路通过 | 11 通过、0 失败；创建并审批 `浏览器实测预约-20260517053246`，发布并接收 `浏览器实测通知-20260517053246` | passed |
+| 补充回归真实点击 | `run-playwright.ps1 codex-work/real-browser-extra-regression.cjs` | 权限、404、筛选、校验和统计切换通过 | 9 通过、0 失败 | passed |
