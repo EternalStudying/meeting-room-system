@@ -647,3 +647,22 @@
 | 根许可证检查 | 根目录 `LICENSE` | 存在明确许可证 | 已新增 MIT License | passed |
 | README 许可证说明检查 | `README.md`、`README.zh-CN.md` | 不再提示根许可证缺失 | 已声明 MIT，并说明前端保留上游模板声明 | passed |
 | 前端模板版权声明检查 | `frontend/LICENSE` | 上游 MIT 声明保留 | 已保留 | passed |
+
+### 2026-05-18 Git 历史敏感信息清理
+- **状态：** completed
+- 执行的操作：
+  - 提交发布前清理结果。
+  - 使用 `git-filter-repo` 重写历史。
+  - 使用 `--force-with-lease` 推送 `master`。
+  - 推送后同步远端并确认本地/远端一致。
+- 创建/修改的文件：
+  - `frontend/task_plan.md`
+  - `frontend/findings.md`
+  - `frontend/progress.md`
+
+## 测试结果：2026-05-18 Git 历史敏感信息清理
+| 测试 | 输入 | 预期结果 | 实际结果 | 状态 |
+|------|------|---------|---------|------|
+| 远端保护推送 | `git push --force-with-lease` | 仅在远端未变化时强推 | 推送成功 | passed |
+| 本地远端一致性 | `git rev-list --left-right --count origin/master...HEAD` | 无 ahead/behind | `0 0` | passed |
+| 全历史敏感信息扫描 | 旧数据库地址、旧明文密码配置、旧备份/种子文件名 | 无匹配 | 无匹配 | passed |

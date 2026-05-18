@@ -757,3 +757,24 @@
 | 根许可证检查 | 根目录 `LICENSE` | 存在明确许可证 | 已新增 MIT License | passed |
 | README 许可证说明检查 | `README.md`、`README.zh-CN.md` | 不再提示根许可证缺失 | 已声明 MIT，并说明前端保留上游模板声明 | passed |
 | Git 历史风险扫描 | 旧数据库连接、旧默认密码、旧数据库备份脚本名称 | 明确历史风险状态 | 历史仍有残留，需要用户确认后重写历史 | needs-confirmation |
+
+### 2026-05-18 Git 历史敏感信息清理
+- **状态：** completed
+- 执行的操作：
+  - 提交发布前清理结果：`chore: sanitize repository for public release`。
+  - 安装并使用 `git-filter-repo` 重写历史，替换旧数据库地址、旧明文密码配置和旧备份/种子文件名。
+  - 重写后恢复 `origin` 远端。
+  - 使用 `--force-with-lease` 推送 `master` 到 GitHub。
+  - 推送后拉取远端状态并复扫全历史。
+- 创建/修改的文件：
+  - `backend/task_plan.md`
+  - `backend/findings.md`
+  - `backend/progress.md`
+
+## 测试结果：2026-05-18 Git 历史敏感信息清理
+| 测试 | 输入 | 预期结果 | 实际结果 | 状态 |
+|------|------|---------|---------|------|
+| 远端保护推送 | `git push --force-with-lease` | 仅在远端仍为预期旧哈希时强推 | 推送成功，`master` 更新到重写后提交 | passed |
+| 本地远端一致性 | `git fetch origin`、`git rev-list --left-right --count origin/master...HEAD` | 无 ahead/behind | `0 0` | passed |
+| 全历史敏感信息扫描 | 旧数据库地址、旧明文密码配置、旧备份/种子文件名 | 无匹配 | 无匹配 | passed |
+| Git 空白检查 | `git diff --check` | 无空白错误 | 无错误 | passed |
