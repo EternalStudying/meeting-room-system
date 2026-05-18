@@ -599,3 +599,51 @@
 |------|------|---------|---------|------|
 | README 链接检查 | `node codex-work/readme-link-check.cjs` | 本地相对链接均存在 | logo、预览图和 docs 链接均 OK | passed |
 | Markdown 空白检查 | `git diff --check` | 无 README 空白错误 | 无错误；仅输出既有 CRLF 提示 | passed |
+
+### 2026-05-18 发布前前端模板残留清理
+- **状态：** completed
+- 执行的操作：
+  - 扫描前端模板名称、上游作者名、上游邮箱和上游仓库名等残留。
+  - 将 `frontend/package.json` 的包名、描述、作者和仓库地址替换为本项目内容。
+  - 将 `frontend/src/common/constants/cache-key.ts` 的缓存命名前缀改为 `meeting-room-system`。
+  - 更新 `frontend/tests/pinia/TagsViewStore.test.ts` 中的旧缓存 key 字符串。
+  - 删除无业务意义的 `frontend/tests/demo.test.ts` 模板测试。
+  - 保留 `frontend/LICENSE` 中的上游 MIT 版权声明。
+- 创建/修改/删除的文件：
+  - `frontend/package.json`
+  - `frontend/src/common/constants/cache-key.ts`
+  - `frontend/tests/pinia/TagsViewStore.test.ts`
+  - `frontend/tests/demo.test.ts`
+  - `frontend/task_plan.md`
+  - `frontend/findings.md`
+  - `frontend/progress.md`
+
+## 测试结果：2026-05-18 发布前前端模板残留清理
+| 测试 | 输入 | 预期结果 | 实际结果 | 状态 |
+|------|------|---------|---------|------|
+| 模板残留扫描 | 扫描前端模板名称、上游作者名、上游邮箱、上游仓库名和旧模板描述 | 只允许许可证版权声明保留上游作者信息 | 仅 `frontend/LICENSE` 命中 | passed |
+| 缓存 key 目标测试 | `pnpm test -- run tests/pinia/TagsViewStore.test.ts` | 缓存 key 相关测试通过 | 1 个文件、1 个测试通过 | passed |
+| 前端全量测试 | `pnpm test -- run` | 全量前端测试通过 | 25 个文件、128 个测试通过 | passed |
+| 前端构建 | `pnpm build` | TypeScript 和 Vite 构建通过 | 构建通过；保留既有 `%VITE_APP_TITLE%` 未定义警告 | passed |
+
+### 2026-05-18 发布前许可证与历史风险梳理
+- **状态：** completed
+- 执行的操作：
+  - 新增根目录 `LICENSE`，采用 MIT 协议。
+  - 更新 `README.md` 和 `README.zh-CN.md` 的 License 章节。
+  - 保留 `frontend/LICENSE` 上游模板 MIT 版权声明。
+  - 确认 Git 历史风险需要单独确认后再执行历史重写。
+- 创建/修改的文件：
+  - `LICENSE`
+  - `README.md`
+  - `README.zh-CN.md`
+  - `frontend/task_plan.md`
+  - `frontend/findings.md`
+  - `frontend/progress.md`
+
+## 测试结果：2026-05-18 发布前许可证与历史风险梳理
+| 测试 | 输入 | 预期结果 | 实际结果 | 状态 |
+|------|------|---------|---------|------|
+| 根许可证检查 | 根目录 `LICENSE` | 存在明确许可证 | 已新增 MIT License | passed |
+| README 许可证说明检查 | `README.md`、`README.zh-CN.md` | 不再提示根许可证缺失 | 已声明 MIT，并说明前端保留上游模板声明 | passed |
+| 前端模板版权声明检查 | `frontend/LICENSE` | 上游 MIT 声明保留 | 已保留 | passed |

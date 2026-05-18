@@ -186,6 +186,8 @@ start-dev.bat
 
 导入演示数据后，常用账号如下：
 
+这些账号只用于本地演示数据。不要在公网数据库或部署环境中使用这些默认凭据。
+
 | 角色 | 用户名 | 密码 |
 | --- | --- | --- |
 | 管理员 | `admin` | `123456` |
@@ -261,11 +263,10 @@ mvn -pl meeting-room-server spring-boot:run "-Dspring-boot.run.arguments=--serve
 ## 发布到 GitHub 前建议
 
 - 替换本地或演示数据库凭据。
-- 如果希望整个仓库以明确协议开源，请在根目录添加 `LICENSE` 文件。
+- 确认仓库当前的 MIT 协议是否符合你的分发方式。
 - 确认是否保留演示账号和演示数据说明。
 - 如果希望 README 更像产品主页，可以继续补充更多截图或在线演示地址。
 
 ## License
 
-当前仓库根目录还没有 `LICENSE` 文件。公开发布、分发或复用完整项目之前，建议先补充明确的开源协议。
-
+本项目采用 [MIT License](./LICENSE)。前端目录仍保留上游模板的 MIT 版权声明：[frontend/LICENSE](./frontend/LICENSE)。

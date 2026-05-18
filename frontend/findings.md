@@ -167,3 +167,15 @@
 - 本项目根目录此前没有 `README.md` 和 `README.zh-CN.md`；前端子目录已有中英文 README，但只覆盖前端，不足以作为 GitHub 仓库首页。
 - 根 README 应覆盖全栈能力：用户预约、日历、通知、管理端、紧急会议抢占、AI 助手、后端 API 和启动配置。
 - 仓库根目录目前没有 `LICENSE` 文件，因此 README 不声明整个仓库为 MIT，只提示发布前补充根许可证。
+
+## 2026-05-18 发布前前端模板残留清理
+- 发布前扫描发现模板残留集中在 `frontend/package.json`、`frontend/src/common/constants/cache-key.ts`、`frontend/tests/demo.test.ts` 和 `frontend/tests/pinia/TagsViewStore.test.ts`。
+- `frontend/package.json` 的包名、描述、作者和 repository 已替换为本项目内容，避免 GitHub 展示仍指向上游模板。
+- `CacheKey` 的 `SYSTEM_NAME` 从模板名改为 `meeting-room-system`，这会让旧浏览器本地 token/config 缓存失效，用户重新登录即可。
+- `frontend/tests/demo.test.ts` 只是 Vitest 模板教学示例，含上游作者邮箱和 GitHub 链接，已删除。
+- `frontend/LICENSE` 中的上游 MIT 版权声明保留，这是合规要求，不属于需要删除的模板残留。
+
+## 2026-05-18 发布前许可证与历史风险梳理
+- 根目录已新增 MIT `LICENSE`，中英文 README 已更新许可证说明。
+- 前端目录保留上游模板 MIT 版权声明，根许可证只补齐本仓库整体分发协议，不删除第三方版权声明。
+- Git 历史仍包含已删除的旧数据库连接和旧默认密码残留；这不是当前文件问题，但公开远端历史需要单独重写。

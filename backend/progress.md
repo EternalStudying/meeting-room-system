@@ -649,22 +649,22 @@
 ### 2026-05-18 演示数据库重置
 - **状态：** completed
 - 执行的操作：
-  - 读取远程 MySQL 配置、真实表结构、预约/通知/会议室/设备状态映射。
-  - 备份 `meeting_system` 到 `codex-work/db/database_backup.sql`。
-  - 编写 `codex-work/db/seed_meeting_system.sql`，先清空旧数据，再插入 2026-05-20 前后的用户、会议室、设备、预约、评价和通知数据。
+  - 读取受控演示数据库的真实表结构、预约/通知/会议室/设备状态映射；连接信息仅来自本机环境变量或被 Git 忽略的本地配置。
+  - 在被 Git 忽略的本地工作目录中完成数据库备份，备份文件不进入仓库。
+  - 编写被 Git 忽略的本地种子 SQL，先清空旧数据，再插入 2026-05-20 前后的用户、会议室、设备、预约、评价和通知数据。
   - 建立临时校验库导入同一份 schema 和种子 SQL，确认无语法错误和外键错误。
-  - 将种子脚本导入正式 `meeting_system`，完成旧数据清理和新数据导入。
+  - 将种子脚本导入目标演示数据库，完成旧数据清理和新数据导入。
 - 创建/修改的文件：
   - `backend/task_plan.md`
   - `backend/findings.md`
   - `backend/progress.md`
-  - `codex-work/db/seed_meeting_system.sql`
+  - 被 Git 忽略的本地种子 SQL
 
 ## 测试结果：2026-05-18 演示数据库重置
 | 测试 | 输入 | 预期结果 | 实际结果 | 状态 |
 |------|------|---------|---------|------|
-| 临时库导入校验 | schema-only dump + `seed_meeting_system.sql` | 种子脚本无语法/外键错误 | 8 用户、8 会议室、31 预约、16 通知 | passed |
-| 正式库表数量 | `SELECT COUNT(*)` 汇总 | 新数据完整导入 | 8 用户、8 会议室、7 设备、31 预约、59 参会人、41 预约设备、4 评价、16 通知 | passed |
+| 临时库导入校验 | schema-only dump + 本地种子 SQL | 种子脚本无语法/外键错误 | 8 用户、8 会议室、31 预约、16 通知 | passed |
+| 目标演示库表数量 | `SELECT COUNT(*)` 汇总 | 新数据完整导入 | 8 用户、8 会议室、7 设备、31 预约、59 参会人、41 预约设备、4 评价、16 通知 | passed |
 | 预约状态覆盖 | `GROUP BY reservation.status` | 覆盖 1-6 全状态 | PENDING 6、ACTIVE 17、ENDED 4、CANCELLED 2、REJECTED 1、EXCEPTION 1 | passed |
 | 日期覆盖 | `GROUP BY DATE(start_time)` | 覆盖 5.20 前后和下周 | 2026-05-13、05-15、05-16、05-17、05-18、05-19、05-20、05-21、05-22、05-25、05-26、05-27 | passed |
 | 张三视角 | 用户 ID 2 的组织/参会查询 | AI 常见时间问题有数据 | 5.20 可见 9 条、上周 4 条、下周 4 条、已结束未评价 2 条 | passed |
@@ -685,3 +685,75 @@
 |------|------|---------|---------|------|
 | README 链接检查 | `node codex-work/readme-link-check.cjs` | 本地相对链接均存在 | logo、预览图和 docs 链接均 OK | passed |
 | Markdown 空白检查 | `git diff --check` | 无 README 空白错误 | 无错误；仅输出既有 CRLF 提示 | passed |
+
+### 2026-05-18 发布前后端配置脱敏
+- **状态：** completed
+- 执行的操作：
+  - 将 `application.yml` 中的数据库 URL、用户名和密码改为环境变量优先读取，并支持通过 host、port、database name 拼接 JDBC URL。
+  - 新增 `application-example.yml`，提供本地演示配置示例。
+  - 新增被 Git 忽略的本机 `application-local.yml`，用于沿用当前电脑已有的数据库 host、port 和 password 环境变量。
+  - 修改 `start-server-8081.cmd`，检测到本机配置时启用 `local` profile；当前进程缺少环境变量时从 Windows 用户级/机器级环境变量补读；支持 `BACKEND_PORT` 临时覆盖端口，默认仍为 8081。
+  - 扩充根目录 `.gitignore` 和 `backend/.gitignore`，忽略本地配置、secret 配置、dump/backup 文件和数据库备份目录。
+  - 验证旧明文数据库密码配置已从当前运行配置中移除；真实库地址仍在后端上下文文档中，留待步骤 3 清理。
+- 创建/修改的文件：
+  - `.gitignore`
+  - `backend/.gitignore`
+  - `backend/meeting-room-server/src/main/resources/application.yml`
+  - `backend/meeting-room-server/src/main/resources/application-example.yml`
+  - `backend/start-server-8081.cmd`
+  - `backend/task_plan.md`
+  - `backend/findings.md`
+  - `backend/progress.md`
+
+## 测试结果：2026-05-18 发布前后端配置脱敏
+| 测试 | 输入 | 预期结果 | 实际结果 | 状态 |
+|------|------|---------|---------|------|
+| 后端模块测试 | `mvn -pl meeting-room-server test` | 配置占位符不破坏后端测试 | 194 个测试通过，`BUILD SUCCESS` | passed |
+| 本机配置启动验证 | 临时加载用户级环境变量，`spring-boot.run.profiles=local`，端口 `18081` | 后端能使用本机环境变量启动 | `/api/v1/auth/captcha` 返回 200，验证后已停止临时进程 | passed |
+| 后端启动脚本验证 | `BACKEND_PORT=18081` 调用 `start-server-8081.cmd` | 脚本自动启用 local profile 并从用户级环境变量补读连接配置 | `/api/v1/auth/captcha` 返回 200，验证后已停止临时进程 | passed |
+| Git 空白检查 | `git diff --check` | 无空白错误 | 无错误，仅有既有 CRLF 提示 | passed |
+| 旧密码配置扫描 | 精确扫描旧明文数据库密码配置 | 当前运行配置不再包含旧明文配置 | 无运行配置匹配 | passed |
+| 本地配置忽略检查 | `git check-ignore -v application-local.yml backend/meeting-room-server/src/main/resources/application-local.yml local.dump db-backups/example.sql.gz` | 本地配置和备份产物被忽略 | 均命中 `.gitignore` 或 `backend/.gitignore` | passed |
+
+### 2026-05-18 发布前文档敏感信息清理
+- **状态：** completed
+- 执行的操作：
+  - 清理 `backend/findings.md` 中演示数据库重置记录里的真实连接地址、具体备份文件名和直接目标库导入表述。
+  - 清理 `backend/progress.md` 中演示数据库重置日志里的具体备份/种子文件名和直接目标库表述。
+  - 在中英文 README 的演示账号表格前增加公开部署安全说明。
+  - 在 `完整功能测试清单.md` 的测试账号矩阵前增加默认账号安全说明。
+- 创建/修改的文件：
+  - `README.md`
+  - `README.zh-CN.md`
+  - `完整功能测试清单.md`
+  - `backend/task_plan.md`
+  - `backend/findings.md`
+  - `backend/progress.md`
+
+## 测试结果：2026-05-18 发布前文档敏感信息清理
+| 测试 | 输入 | 预期结果 | 实际结果 | 状态 |
+|------|------|---------|---------|------|
+| 文档敏感信息扫描 | 扫描旧数据库地址、旧备份文件名、旧种子文件名、旧明文密码配置和直接目标库表述 | 当前文件不再包含这些发布风险内容 | 无匹配 | passed |
+| Markdown 空白检查 | `git diff --check` | 无空白错误 | 无错误，仅有既有 CRLF 提示 | passed |
+
+### 2026-05-18 发布前许可证与历史风险梳理
+- **状态：** completed
+- 执行的操作：
+  - 新增根目录 `LICENSE`，采用 MIT 协议。
+  - 更新 `README.md` 和 `README.zh-CN.md` 的发布前建议与 License 章节。
+  - 扫描 Git 历史，确认旧提交仍包含旧数据库连接和旧默认密码残留。
+  - 保留 `frontend/LICENSE` 的上游 MIT 版权声明。
+- 创建/修改的文件：
+  - `LICENSE`
+  - `README.md`
+  - `README.zh-CN.md`
+  - `backend/task_plan.md`
+  - `backend/findings.md`
+  - `backend/progress.md`
+
+## 测试结果：2026-05-18 发布前许可证与历史风险梳理
+| 测试 | 输入 | 预期结果 | 实际结果 | 状态 |
+|------|------|---------|---------|------|
+| 根许可证检查 | 根目录 `LICENSE` | 存在明确许可证 | 已新增 MIT License | passed |
+| README 许可证说明检查 | `README.md`、`README.zh-CN.md` | 不再提示根许可证缺失 | 已声明 MIT，并说明前端保留上游模板声明 | passed |
+| Git 历史风险扫描 | 旧数据库连接、旧默认密码、旧数据库备份脚本名称 | 明确历史风险状态 | 历史仍有残留，需要用户确认后重写历史 | needs-confirmation |

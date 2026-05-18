@@ -14,6 +14,23 @@ backend/**/target/
 .env.*.local
 frontend/.env.local
 frontend/.env.*.local
+application-local.yml
+application-*.local.yml
+backend/**/application-local.yml
+backend/**/application-*.local.yml
+backend/**/application-secret.yml
+backend/**/application-*.secret.yml
+
+# Database dumps and local seed data
+*.dump
+*.bak
+*.backup
+*.sql.gz
+*.sql.zip
+db-backup/
+db-backups/
+database-backup/
+database-backups/
 
 # Logs
 *.log

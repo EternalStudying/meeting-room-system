@@ -186,6 +186,8 @@ It opens the backend on port `8081` and the frontend on port `5172`.
 
 When the demo seed data is imported, the following accounts are commonly used:
 
+These credentials are only for local demo data. Do not use them with a public database or a deployed environment.
+
 | Role | Username | Password |
 | --- | --- | --- |
 | Admin | `admin` | `123456` |
@@ -263,11 +265,10 @@ Related design documents:
 Before publishing this repository publicly:
 
 - Replace any local or demo database credentials.
-- Add a root `LICENSE` file if you want the whole repository to be distributed under a specific license.
+- Review whether the MIT license in this repository matches your intended distribution model.
 - Confirm whether demo accounts and seed data should remain available.
 - Add screenshots or a hosted demo link if you want a more product-oriented GitHub landing page.
 
 ## License
 
-This repository currently does not include a root license file. Add one before distributing or reusing the full project publicly.
-
+This project is released under the [MIT License](./LICENSE). The frontend also retains the original MIT notice for the upstream template in [frontend/LICENSE](./frontend/LICENSE).

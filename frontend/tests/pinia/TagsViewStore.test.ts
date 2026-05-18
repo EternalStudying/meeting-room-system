@@ -21,10 +21,10 @@ describe("tags view store", () => {
       showGreyMode: false,
       showColorWeakness: false
     }))
-    localStorage.setItem("v3-admin-vite-visited-views-key", JSON.stringify([
+    localStorage.setItem("meeting-room-system-visited-views-key", JSON.stringify([
       { path: "/rooms", fullPath: "/rooms", meta: { title: "会议室" } }
     ]))
-    localStorage.setItem("v3-admin-vite-cached-views-key", JSON.stringify(["Rooms"]))
+    localStorage.setItem("meeting-room-system-cached-views-key", JSON.stringify(["Rooms"]))
 
     const { useTagsViewStore } = await import("@/pinia/stores/tags-view")
     const tagsViewStore = useTagsViewStore()
