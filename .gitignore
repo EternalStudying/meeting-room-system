@@ -47,3 +47,6 @@ Thumbs.db
 
 # Local agent/browser artifacts
 codex-work/
+AGENTS.md
+docs/PROJECT_CONTEXT.md
+docs/superpowers/

@@ -4,7 +4,7 @@
 </div>
 
 <p align="center">
-  AI-assisted meeting room reservation, scheduling, administration, and analytics platform.
+  A full-stack meeting room reservation platform with scheduling, room management, notifications, analytics, and a controlled AI assistant.
 </p>
 
 <p align="center">
@@ -18,27 +18,26 @@
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5.9-3178c6">
   <img alt="Spring Boot" src="https://img.shields.io/badge/Spring%20Boot-3.5-6db33f">
   <img alt="Java" src="https://img.shields.io/badge/Java-21-f89820">
-  <img alt="MySQL" src="https://img.shields.io/badge/MySQL-8.x-4479a1">
+  <img alt="License" src="https://img.shields.io/badge/License-MIT-blue">
 </p>
 
 ## Overview
 
-Meeting Room System is a full-stack web application for managing meeting rooms, reservations, devices, notifications, and operational statistics. It includes regular user workflows, administrator workflows, and an AI assistant that can understand natural language requests such as checking schedules, finding available rooms, creating or cancelling reservations, and helping administrators handle approval or emergency meeting scenarios.
+Meeting Room System is a real full-stack web application for organizations that need to manage meeting rooms, reservations, room devices, approval workflows, notifications, and usage statistics.
 
-The project is built with a Vue 3 + Vite frontend and a Spring Boot + MyBatis backend. The backend integrates Spring AI with Ollama for structured planning, while keeping deterministic fallback logic for common business requests.
+The frontend is built with Vue 3, Vite, TypeScript, Pinia, Element Plus, FullCalendar, and ECharts. The backend is a Java 21 Spring Boot application with MyBatis and MySQL. The AI assistant uses a controlled tool registry: it can understand natural language, but actual business operations still go through backend services, permission checks, validation, and confirmation.
 
-## Highlights
+## Features
 
-- Meeting room discovery with location, capacity, device, status, and availability filters.
-- Reservation creation, recommendation, update, cancellation, calendar view, and post-meeting review.
-- Drag-to-adjust calendar scheduling for editable reservations.
-- Personal reservation center covering active, ended, and reviewable meetings.
-- Notification center with unread summary, categorized messages, and admin notice publishing from the top navigation bell.
-- Admin workspace for rooms, devices, reservation approval, exception handling, device binding statistics, and usage analytics.
-- Emergency meeting workflow for administrators, including conflict preview, room reassignment, cancellation fallback, and user notifications.
-- AI assistant with Tool Registry, LLM-first planning, RAG knowledge answers, deterministic fallback, slot collection, write-operation confirmation, and frozen execution parameters.
-- Role-based route and API permission checks.
-- Frontend unit/page tests and backend service/controller tests.
+- Room browsing with location, capacity, device, status, and availability filters.
+- Reservation creation, room recommendation, calendar view, modification, cancellation, and post-meeting review.
+- Personal reservation center for active, ended, and reviewable meetings.
+- Notification center with unread summary, categories, read state, and admin publishing from the top navigation bell.
+- Admin room management, device management, reservation review, exception handling, and statistics dashboards.
+- Emergency meeting workflow for admins, including conflict preview, room reassignment, cancellation fallback, and affected-user notifications.
+- AI assistant for schedule queries, room availability, reservation operations, admin tools, and system knowledge Q&A.
+- Role-based frontend routes and backend API permissions.
+- Frontend Vitest coverage and backend JUnit/Mockito/H2 tests.
 
 ## Preview
 
@@ -49,49 +48,45 @@ The project is built with a Vue 3 + Vite frontend and a Spring Boot + MyBatis ba
 ```mermaid
 flowchart LR
   U["User / Admin"] --> F["Vue 3 Frontend<br>Vite + Element Plus"]
-  F -->|/api/v1| B["Spring Boot Backend<br>REST API + Business Services"]
+  F -->|/api/v1| B["Spring Boot Backend<br>REST Controllers + Services"]
   B --> DB["MySQL<br>meeting_system"]
-  B --> AI["Ollama via Spring AI<br>optional"]
-  B --> RAG["Assistant Knowledge Base<br>JSON resources"]
+  B --> AI["Ollama / Spring AI<br>optional planner"]
+  B --> KB["Assistant knowledge files<br>JSON + prompt resources"]
 ```
 
-## Tech Stack
-
-### Frontend
-
-- Vue 3, Vite, TypeScript
-- Element Plus, Pinia, Vue Router
-- Axios, FullCalendar, ECharts, UnoCSS, SCSS
-- Vitest and Vue Test Utils
-
-### Backend
-
-- Java 21, Spring Boot 3.5
-- Spring Web, Spring Validation
-- MyBatis, MySQL Connector/J
-- Spring AI Ollama
-- JUnit 5, Mockito, H2 for tests
-
-## Project Structure
+## Repository Layout
 
 ```text
 meeting-room/
   frontend/                         Vue 3 frontend application
     src/common/apis/                API clients grouped by business domain
     src/pages/                      Route pages
-    src/components/                 Business components
+    src/components/                 Reusable business components
     tests/                          Frontend unit and page tests
 
-  backend/                          Spring Boot backend workspace
+  backend/                          Maven multi-module backend workspace
     meeting-room-common/            Shared enums, result wrapper, utilities
     meeting-room-server/            REST controllers, services, mappers, AI assistant
       src/main/resources/ai/        Assistant prompt, schema, and knowledge files
       src/main/resources/sql/       SQL migration fragments
       src/test/java/                Backend tests
 
-  docs/superpowers/                 Product specs and implementation plans
-  start-dev.bat                     Windows helper script for frontend + backend
+  start-dev.bat                     Windows helper for backend 8081 + frontend 5172
 ```
+
+## Tech Stack
+
+| Area | Stack |
+| --- | --- |
+| Frontend | Vue 3, Vite, TypeScript, Pinia, Vue Router, Element Plus |
+| Scheduling UI | FullCalendar |
+| Charts | ECharts |
+| Styling | SCSS, UnoCSS |
+| HTTP | Axios |
+| Backend | Java 21, Spring Boot 3.5, Spring Web, Spring Validation |
+| Persistence | MyBatis, MySQL Connector/J |
+| AI assistant | Spring AI Ollama, local prompt/schema/knowledge resources |
+| Tests | Vitest, Vue Test Utils, JUnit 5, Mockito, H2 |
 
 ## Prerequisites
 
@@ -102,34 +97,71 @@ meeting-room/
 - MySQL 8.x
 - Optional: Ollama with `qwen2.5:7b` for the LLM planner path
 
-## Quick Start
+## Getting Started
 
-### 1. Clone the repository
+### 1. Clone
 
 ```bash
 git clone git@github.com:EternalStudying/meeting-room-system.git
 cd meeting-room-system
 ```
 
-### 2. Configure the backend
+### 2. Prepare MySQL
 
-Edit:
+Create the schema and, optionally, import demo data:
 
-```text
-backend/meeting-room-server/src/main/resources/application.yml
+```bash
+mysql -u root -p < backend/meeting-room-server/src/main/resources/sql/schema.sql
+mysql -u root -p meeting_system < backend/meeting-room-server/src/main/resources/sql/seed-demo.sql
 ```
 
-Set your own MySQL connection:
+The demo seed contains sample users, rooms, devices, reservations, reviews, and notifications around May 2026. Change all demo passwords before deployment.
+
+### 3. Configure the backend
+
+The tracked backend config is environment-variable based:
 
 ```yaml
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/meeting_system?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-    username: your_user
-    password: your_password
+    url: "jdbc:mysql://${DB_HOST:${MYSQL_HOST:${SERVER_PUBLIC_IP:localhost}}}:${DB_PORT:${MYSQL_PORT:3306}}/${DB_NAME:${MYSQL_DATABASE:meeting_system}}?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true"
+    username: "${DB_USERNAME:${MYSQL_USER:root}}"
+    password: "${DB_PASSWORD:${MYSQL_PASSWORD:${MEETING_DB_PASSWORD:meeting_password}}}"
 ```
 
-If Ollama is not available, disable the LLM planner and use deterministic fallback:
+Recommended local variables:
+
+| Variable | Purpose | Default |
+| --- | --- | --- |
+| `DB_HOST` | MySQL host | `localhost` |
+| `DB_PORT` | MySQL port | `3306` |
+| `DB_NAME` | Database name | `meeting_system` |
+| `DB_USERNAME` | Database username | `root` |
+| `DB_PASSWORD` | Database password | `meeting_password` |
+
+You can also copy the example config if you need a local profile:
+
+```text
+backend/meeting-room-server/src/main/resources/application-example.yml
+```
+
+Local profile files such as `application-local.yml` are ignored by Git.
+
+### 4. Optional AI configuration
+
+By default, the backend expects Ollama at:
+
+```text
+http://127.0.0.1:11434
+```
+
+with model:
+
+```text
+qwen2.5:7b
+```
+
+If Ollama is unavailable, disable the LLM planner and use deterministic fallback:
 
 ```yaml
 assistant:
@@ -137,7 +169,9 @@ assistant:
     enabled: false
 ```
 
-### 3. Start the backend
+Spring Boot environment variables such as `ASSISTANT_AI_ENABLED=false` can also be used.
+
+### 5. Start the backend
 
 From the repository root:
 
@@ -148,15 +182,15 @@ mvn -pl meeting-room-common clean install -DskipTests "-Dspring-boot.repackage.s
 mvn -pl meeting-room-server spring-boot:run "-Dspring-boot.run.arguments=--server.port=8081"
 ```
 
-The backend will be available at:
+Backend URL:
 
 ```text
 http://localhost:8081
 ```
 
-### 4. Start the frontend
+### 6. Start the frontend
 
-Open a new terminal:
+Open another terminal:
 
 ```bash
 cd frontend
@@ -164,7 +198,7 @@ pnpm install
 pnpm dev:5172
 ```
 
-The frontend will be available at:
+Frontend URL:
 
 ```text
 http://localhost:5172
@@ -172,32 +206,30 @@ http://localhost:5172
 
 The frontend development server proxies `/api/v1` to `http://127.0.0.1:8081`.
 
-### Windows helper script
+### Windows helper
 
-After installing frontend dependencies and configuring the backend, you can also run:
+After dependencies and backend configuration are ready, Windows users can start both sides from the repository root:
 
 ```bat
 start-dev.bat
 ```
 
-It opens the backend on port `8081` and the frontend on port `5172`.
+This opens the backend on `8081` and the frontend on `5172`.
 
 ## Demo Accounts
 
-When the demo seed data is imported, the following accounts are commonly used:
-
-These credentials are only for local demo data. Do not use them with a public database or a deployed environment.
+If your local demo database contains the provided demo users, these accounts are commonly used:
 
 | Role | Username | Password |
 | --- | --- | --- |
 | Admin | `admin` | `123456` |
 | User | `zhangsan` | `123456` |
 
-Change or remove these accounts before using the system outside a local/demo environment.
+These credentials are for local demo data only. Do not use them with a public database or any deployed environment.
 
 ## Common Commands
 
-### Frontend
+Frontend:
 
 ```bash
 cd frontend
@@ -207,13 +239,15 @@ pnpm build
 pnpm build:staging
 ```
 
-### Backend
+Backend:
 
 ```bash
 cd backend
 mvn -pl meeting-room-server test
 mvn -pl meeting-room-server spring-boot:run "-Dspring-boot.run.arguments=--server.port=8081"
 ```
+
+Known note: the frontend build may still print an existing `%VITE_APP_TITLE%` warning.
 
 ## API Overview
 
@@ -235,39 +269,40 @@ mvn -pl meeting-room-server spring-boot:run "-Dspring-boot.run.arguments=--serve
 | Admin statistics | `/api/v1/admin/stats` |
 | Admin device statistics | `/api/v1/admin/device-stats` |
 
-## AI Assistant Design
+## AI Assistant
 
-The assistant is designed as a controlled business executor rather than a free-form chatbot:
+The assistant is built as a controlled business executor, not an unrestricted chatbot.
 
-- The Tool Registry defines available tools, permissions, read/write type, required fields, and confirmation rules.
-- The planner attempts LLM-based structured parsing first.
-- Invalid, low-confidence, or unavailable LLM results fall back to deterministic parsing.
-- RAG is used for system knowledge and operation guidance, not for directly executing business actions.
+- Tool Registry defines available tools, required fields, permissions, read/write type, and confirmation rules.
+- The planner attempts structured LLM parsing first.
+- Invalid, low-confidence, or unavailable LLM output falls back to deterministic parsing.
+- RAG is used for system knowledge and operation guidance only.
 - Write operations return a confirmation card before execution.
 - Confirmation uses frozen parameters so later conversation turns do not silently change the pending action.
 
-Related design documents:
+Example supported user requests:
 
-- [AI assistant full capability roadmap](./docs/superpowers/plans/2026-05-13-ai-assistant-full-capability-roadmap.md)
-- [Planner + RAG v2 implementation plan](./docs/superpowers/plans/2026-05-14-ai-assistant-planner-rag-v2-implementation.md)
-- [Emergency meeting preemption design](./docs/superpowers/specs/2026-05-15-emergency-meeting-preemption-design.md)
-- [Admin notification publish dialog design](./docs/superpowers/specs/2026-05-15-admin-notification-publish-dialog-design.md)
+- "What meetings do I have today?"
+- "What meetings did I attend last week?"
+- "Which rooms are available tomorrow from 9 to 11?"
+- "Cancel my meeting tomorrow afternoon."
+- "Create an emergency meeting and handle conflicts." administrator only
 
-## Configuration Notes
+## Security Notes
 
-- `backend/meeting-room-server/src/main/resources/application.yml` contains the backend runtime configuration.
-- `frontend/.env.development` sets `VITE_BASE_URL=/api/v1`, hash routing, and the application title.
-- The backend default port in `application.yml` is `8080`; the development scripts and README commands run it on `8081`.
-- Do not commit production database credentials or production AI service endpoints.
+- Do not commit production database credentials, production AI endpoints, tokens, or local profile files.
+- Rotate any credential that was ever committed before publishing a repository.
+- Demo accounts and demo passwords are for local testing only.
+- Admin-only workflows are enforced both by frontend visibility and backend permissions.
 
-## Publishing Notes
+## Contributing
 
-Before publishing this repository publicly:
+Issues and pull requests are welcome. For meaningful changes, please include:
 
-- Replace any local or demo database credentials.
-- Review whether the MIT license in this repository matches your intended distribution model.
-- Confirm whether demo accounts and seed data should remain available.
-- Add screenshots or a hosted demo link if you want a more product-oriented GitHub landing page.
+- A clear description of the problem or feature.
+- The affected frontend/backend area.
+- Targeted tests or a manual verification note.
+- Screenshots for UI changes when relevant.
 
 ## License
 
