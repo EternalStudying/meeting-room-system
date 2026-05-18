@@ -161,3 +161,9 @@
 - `.recommendation-list` 和 `.recommendation-empty` 继续参与纵向 flex 分配，推荐卡片过多时在右侧列表内部滚动，不再撑高弹窗。
 - 回归测试在 `tests/components/ReservationCreateDialog.test.ts` 中覆盖普通预约右侧高度由左侧限制、紧急会议保留拉伸样式。
 - Playwright Local 页面验证在 5172 同时检查普通预约和紧急会议：普通预约左/右约 722/723，右侧列表内部滚动；紧急会议左/右约 1106/1106，按钮仍贴近底部。
+
+## 2026-05-18 GitHub 根 README 文档
+- GitHub 官方 README 建议覆盖项目做什么、为什么有用、如何开始、从哪里获得帮助、谁维护；高星项目通常进一步补充徽章、语言入口、特性、预览、安装运行、贡献和许可。
+- 本项目根目录此前没有 `README.md` 和 `README.zh-CN.md`；前端子目录已有中英文 README，但只覆盖前端，不足以作为 GitHub 仓库首页。
+- 根 README 应覆盖全栈能力：用户预约、日历、通知、管理端、紧急会议抢占、AI 助手、后端 API 和启动配置。
+- 仓库根目录目前没有 `LICENSE` 文件，因此 README 不声明整个仓库为 MIT，只提示发布前补充根许可证。

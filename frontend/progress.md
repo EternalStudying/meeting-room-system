@@ -582,3 +582,20 @@
 | 前端测试复跑 | `pnpm test -- --run tests/pages/AdminStats.test.ts` | 测试通过 | 26 个文件、130 个测试通过 | passed |
 | 前端构建 | `pnpm build` | TypeScript 和 Vite 构建通过 | 通过；仍有既有 `%VITE_APP_TITLE%` 未定义警告 | passed |
 | 后端模块测试 | `mvn -pl meeting-room-server test` | 后端不受前端清理影响 | 194 个测试通过 | passed |
+
+### 2026-05-18 GitHub 根 README 文档
+- **状态：** completed
+- 执行的操作：
+  - 参考 GitHub 官方 README 建议和高星前端/后端项目 README 结构，确定根 README 采用简介、特性、预览、架构、技术栈、启动、命令、API、AI 助手设计和发布注意事项的组织方式。
+  - 新增英文 `README.md` 和中文 `README.zh-CN.md`，并互相链接。
+  - 使用根目录真实 logo、预览图、现有启动脚本、Vite 代理配置、后端控制器路径和 AI 设计文档编写内容。
+  - 校验两份 README 的本地相对链接均存在。
+- 创建/修改的文件：
+  - `README.md`
+  - `README.zh-CN.md`
+
+## 测试结果：2026-05-18 GitHub 根 README 文档
+| 测试 | 输入 | 预期结果 | 实际结果 | 状态 |
+|------|------|---------|---------|------|
+| README 链接检查 | `node codex-work/readme-link-check.cjs` | 本地相对链接均存在 | logo、预览图和 docs 链接均 OK | passed |
+| Markdown 空白检查 | `git diff --check` | 无 README 空白错误 | 无错误；仅输出既有 CRLF 提示 | passed |

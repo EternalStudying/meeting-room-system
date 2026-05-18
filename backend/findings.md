@@ -170,3 +170,18 @@
 ## 2026-05-17 后端整理边界检查
 - 检查后端公开接口和测试引用后，旧 `/api/v1/ai/chat` 链路仍有 `AiChatControllerTest`、`AiChatServiceImplTest` 和 AI 知识服务测试覆盖，不能仅因前端主助手不再调用就删除。
 - 紧急会议、通知发布、AI Planner/RAG 等后端新增能力均被控制器、服务或测试引用；本轮不做后端代码删除，避免改变已有公开 API。
+
+## 2026-05-18 演示数据库重置
+- 当前后端连接的真实库为 `${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:meeting_system}`，本次直接重置该库业务数据。
+- 重置前已用 `mysqldump --single-transaction` 备份到 `codex-work/db/database_backup.sql`。
+- 表结构确认：预约状态在库内为 `1=PENDING`、`2=ACTIVE`、`3=ENDED`、`4=CANCELLED`、`5=REJECTED`、`6=EXCEPTION`；会议室状态为 `1=AVAILABLE`、`2=MAINTENANCE`；设备状态为 `1=ENABLED`、`0=DISABLED`。
+- 新种子脚本为 `codex-work/db/seed_meeting_system.sql`，导入前先创建临时库跑同一份表结构和种子脚本，验证通过后再导入正式库。
+- 新数据覆盖：8 个用户、8 间会议室、7 类设备、20 条会议室设备绑定、31 条预约、59 条参会人关系、41 条预约设备关系、4 条评价、16 条通知。
+- 预约数据时间集中在 2026-05-18 到 2026-05-27，并保留 2026-05-13 到 2026-05-17 的已结束会议，便于验证“上周我参加了哪些会议”和会后评价。
+- 张三视角重点覆盖：2026-05-20 可见 9 条预约；上周相关 4 条；下周相关 4 条；已结束未评价 2 条；2026-05-19 09:00-11:00 可用会议室为 A102、C301、C302、E401。
+
+## 2026-05-18 GitHub 根 README 文档
+- 根 README 需要避免直接暴露远程数据库配置细节，文档中只说明应配置自己的 MySQL 连接，并提示不要提交生产凭据。
+- 后端 `application.yml` 默认端口为 8080，但本项目开发启动脚本和用户要求使用 8081；README 中明确说明默认配置和开发命令的差异。
+- AI 助手 README 描述应强调受控业务执行器：Tool Registry、LLM Planner、RAG、确定性 fallback、写操作确认和冻结参数，而不是自由聊天。
+- 仓库根目录没有 `LICENSE` 文件，README 中只提示发布前补充根许可证，不把整个项目声明为 MIT。

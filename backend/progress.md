@@ -645,3 +645,43 @@
 - 创建/修改的文件：
   - `backend/findings.md`
   - `backend/progress.md`
+
+### 2026-05-18 演示数据库重置
+- **状态：** completed
+- 执行的操作：
+  - 读取远程 MySQL 配置、真实表结构、预约/通知/会议室/设备状态映射。
+  - 备份 `meeting_system` 到 `codex-work/db/database_backup.sql`。
+  - 编写 `codex-work/db/seed_meeting_system.sql`，先清空旧数据，再插入 2026-05-20 前后的用户、会议室、设备、预约、评价和通知数据。
+  - 建立临时校验库导入同一份 schema 和种子 SQL，确认无语法错误和外键错误。
+  - 将种子脚本导入正式 `meeting_system`，完成旧数据清理和新数据导入。
+- 创建/修改的文件：
+  - `backend/task_plan.md`
+  - `backend/findings.md`
+  - `backend/progress.md`
+  - `codex-work/db/seed_meeting_system.sql`
+
+## 测试结果：2026-05-18 演示数据库重置
+| 测试 | 输入 | 预期结果 | 实际结果 | 状态 |
+|------|------|---------|---------|------|
+| 临时库导入校验 | schema-only dump + `seed_meeting_system.sql` | 种子脚本无语法/外键错误 | 8 用户、8 会议室、31 预约、16 通知 | passed |
+| 正式库表数量 | `SELECT COUNT(*)` 汇总 | 新数据完整导入 | 8 用户、8 会议室、7 设备、31 预约、59 参会人、41 预约设备、4 评价、16 通知 | passed |
+| 预约状态覆盖 | `GROUP BY reservation.status` | 覆盖 1-6 全状态 | PENDING 6、ACTIVE 17、ENDED 4、CANCELLED 2、REJECTED 1、EXCEPTION 1 | passed |
+| 日期覆盖 | `GROUP BY DATE(start_time)` | 覆盖 5.20 前后和下周 | 2026-05-13、05-15、05-16、05-17、05-18、05-19、05-20、05-21、05-22、05-25、05-26、05-27 | passed |
+| 张三视角 | 用户 ID 2 的组织/参会查询 | AI 常见时间问题有数据 | 5.20 可见 9 条、上周 4 条、下周 4 条、已结束未评价 2 条 | passed |
+| 会议室可用性 | 2026-05-19 09:00-11:00 | 能返回部分可用房间 | A102、C301、C302、E401 可用 | passed |
+
+### 2026-05-18 GitHub 根 README 文档
+- **状态：** completed
+- 执行的操作：
+  - 读取后端配置、POM、控制器路由和 AI 助手上下文，确认 README 中的后端技术栈、启动命令、API 摘要和 AI 设计描述。
+  - 新增根目录英文 `README.md` 和中文 `README.zh-CN.md`，覆盖全栈功能、架构、配置、测试命令和 GitHub 发布注意事项。
+  - 校验 README 本地相对链接均存在。
+- 创建/修改的文件：
+  - `README.md`
+  - `README.zh-CN.md`
+
+## 测试结果：2026-05-18 GitHub 根 README 文档
+| 测试 | 输入 | 预期结果 | 实际结果 | 状态 |
+|------|------|---------|---------|------|
+| README 链接检查 | `node codex-work/readme-link-check.cjs` | 本地相对链接均存在 | logo、预览图和 docs 链接均 OK | passed |
+| Markdown 空白检查 | `git diff --check` | 无 README 空白错误 | 无错误；仅输出既有 CRLF 提示 | passed |
